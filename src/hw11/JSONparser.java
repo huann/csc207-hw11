@@ -4,44 +4,67 @@ import java.lang.String;
 import java.util.ArrayList;
 import java.util.Objects;
 
-
 public class JSONparser {
 
-	public static void parser(String output) {
+	public static ArrayList<NamedValue> parser(String output) {
+		String rest = output;
 		int open = 1;
-		String nameval = null;
+		String nameval = "";
+		String stringval = "";
+		Object newval;
 		int i = 0;
-		while (output.charAt(i) != ':'){
+		if (output.charAt(i) == '"') {
+			i++;
+			while (output.charAt(i) != '"') { 
 			nameval.concat(Character.toString(output.charAt(i)));
 			i++;
+			}
 		}
+		i++; // Move past the quotation mark
+		rest = rest.substring(i);
+		// new ArrayList
+		ArrayList<NamedValue> newList = new ArrayList<NamedValue>(1);
+		NamedValue val = new NamedValue();
+		val.name = nameval;
 		
-		//new ArrayList
-		ArrayList<NamedValue> no = new ArrayList<NamedValue>();
-		while (open > 0){
+		while (open > 0) {
+			if (output.charAt(i) == '{') {
+				newval = parser(rest.substring(1));
+				val.value = newval;
+			} else if (output.charAt(i) == '"'){
+				i++; // move past the opening quotation mark
+				while (output.charAt(i) != '"') {
+					stringval.concat(Character.toString(output.charAt(i)));
+					i++;
+				} 
+				i++; // Move past the closing quotation mark
+				rest = rest.substring(i);
+				val.value = stringval;
+				newList.add(0, val);
+			}  
 			
-			
-		if (output.charAt(i) == '{') {
-			parser(output.substring(1));
+			if (output.charAt(i) == ',') {
+			} else if (output.charAt(i) == '[') {
+				
+			} else if (output.charAt(i) == '}') {
+				open = 0;
+			}
+
 		}
-		}
+		return newList;
 	}
 
-
 	public static void main(String[] args) {
-
+		String string = "{ \"sam\":\"rebelsky\" }";
 		if (string.charAt(0) != '{') {
 			return;
 		}
-		int curlyCount = 0;
-		int bracketCount = 0;
-		while () {
-			
-		}
+
+		parser(string);
 	}
 }
 
 class NamedValue {
-    String name;
-    Object value;
+	String name;
+	Object value;
 } // NamedValue
